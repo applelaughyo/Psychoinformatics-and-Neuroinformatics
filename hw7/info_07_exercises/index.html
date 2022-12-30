@@ -1,0 +1,146 @@
+<script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+var currentTrial = 1;
+var startTrialTime = 0;
+var trialRunning = false;
+
+$(document).ready(function() {
+	$('#submitButton').hide();
+	$(document).keyup(function (e){
+                if( e.which === 32 ) { StartTrial(); } //space
+                if( e.which === 83 ) { PressedSame(); } //s
+                if( e.which === 68 ) { PressedDifferent(); } //d
+        });
+});
+
+function PressedSame() {
+	if (!trialRunning) {
+		return;
+	}
+	$('#t' + currentTrial + '_response').val("same");
+	NextTrial();
+}
+
+function PressedDifferent() {
+	if (!trialRunning) {
+		return;
+	}
+	$('#t' + currentTrial + '_response').val("diff");
+	NextTrial();
+}
+
+function NextTrial() {
+	trialRunning = false;
+
+	var currentTime = new Date().getTime();
+	var RT = currentTime - startTrialTime;
+	$('#t' + currentTrial + '_rt').val(RT);
+	
+	$('#t' + currentTrial + '_d2').hide();	
+	$('#startTrial').show();
+	currentTrial++;
+
+        if(currentTrial==4){
+		$('#submitButton').show();
+        }
+}
+
+function StartTrial() {
+	if (trialRunning) {
+		return;
+	}
+	trialRunning = true;
+	
+	$('#startTrial').hide();
+	$('#t' + currentTrial + '_d1').show();
+	
+	setTimeout(function() {
+		$('#t' + currentTrial + '_d1').hide();
+	}, 1000);
+	
+	setTimeout(function() {
+		$('#t' + currentTrial + '_d2').show();
+		startTrialTime = new Date().getTime();
+	}, 1500);	
+}
+const handleSubmit = async () => {
+	const instance = axios.create({ baseURL: 'http://localhost:4000' })
+	t1_response = document.getElementById("t1_response").value
+	t1_rt = document.getElementById("t1_rt").value
+	t2_response = document.getElementById("t2_response").value
+	t2_rt = document.getElementById("t2_rt").value
+	t3_response = document.getElementById("t3_response").value
+	t3_rt= document.getElementById("t3_rt").value
+    await instance.get('/', { params: { t1_response, t1_rt, t2_response, t2_rt, t3_response, t3_rt}})
+}
+</script>
+
+<style>
+
+#container {
+	position: relative;
+	background: gray;
+	width: 320px;
+	height: 240px;
+	margin: 30px;
+}
+
+.displays {
+	position: absolute;
+	display: none;
+	top: 0px;
+	left: 0px;
+}
+
+#startTrial {
+	position: absolute;
+	top: 100px;
+	left: 100px;
+	font-weight: bold;
+	color: white;
+	font-size: 14pt;
+}
+</style>
+<!DOCTYPE html>
+<html>
+	<body>
+		<h3>Remember the colors</h3>
+			You'll see several colored squares flashed briefly. Remember their colors. After a delay, you'll see a new set of colored squares. Either they will all be the same as before or one will have changed color. Press the spacebar to start each trial.
+		<div id="container">
+ 			<a href="javascript:StartTrial()" id="startTrial">Start Trial</a>
+			<script>
+				container = document.getElementById("container")
+				for (i = 1; i <= 3; i++) {
+					for (j = 1; j <= 2; j++){
+						let img = document.createElement("img");
+						img.className = "displays"
+						img.id = `t${i}_d${j}`
+						img.src = `${i}_display${j}.png`
+						container.appendChild(img);
+					}
+				}
+			</script>
+		</div>
+		<script>
+			for (i = 1; i <= 3; i++){
+				let response = document.createElement("input");
+				response.type = "hidden"
+				response.id = `t${i}_response`
+				response.name = `t${i}_response`
+				response.value = ""
+				let rt = document.createElement("input")
+				rt.type = "hidden"
+				rt.id = `t${i}_rt`
+				rt.name = `t${i}_rt`
+				rt.value = ""
+				document.body.appendChild(response);
+				document.body.appendChild(rt);
+			}
+		</script>
+
+		Press 's' if the two displays are the same. Press 'd' if a color changed (different).<br>
+
+		<button id="submitButton" name="submitButton" onclick="handleSubmit()">submit</button>
+	</body>
+</html>

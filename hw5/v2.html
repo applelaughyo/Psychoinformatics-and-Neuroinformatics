@@ -1,0 +1,80 @@
+<script>
+class Picture {
+  constructor(name, answer) {
+    this.name = name;
+    this.answer = answer;
+  }
+}
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        tmp = JSON.parse(JSON.stringify(array[i]));
+        array[i] = JSON.parse(JSON.stringify(array[j]));
+        array[j] = JSON.parse(JSON.stringify(tmp));
+    }
+}
+
+const p1 = new Picture(1, 'F');
+const p2 = new Picture(2, 'M');
+const p3 = new Picture(3, 'F');
+var pictures = [p1 , p2 , p3];
+shuffle(pictures)
+var N = 0;
+var current = 0;
+var correct = 0;
+document.addEventListener("DOMContentLoaded", ()=>{
+    ShowTrial(pictures[current]);
+});
+
+function ShowTrial(picture) {
+    document.querySelector('#page'+picture.name).style.display = 'block'
+    N = N+1; //counting from 1
+    [...document.querySelectorAll('.progress')]
+    .map(x=>{x.textContent=`(${N}/${pictures.length + 1})`});
+}
+
+function NextTrial() {
+    if (document.querySelector('#page'+pictures[current].name).querySelector(`input[value = ${pictures[current].answer}]`).checked === true){
+        correct++
+    }
+    document.querySelector('#page'+pictures[current].name).style.display = 'none'
+    current++;
+    if (current < 3){
+        ShowTrial(pictures[current]);
+    }
+    else{
+        document.querySelector('#page4').style.display = 'block'
+        document.querySelector('#page4').textContent += `${Math.round(correct / pictures.length * 10000) / 100}%`
+    }
+}
+</script>
+
+<style> .page {display: none;} </style> 
+
+Please indicate the sex of this face:
+<div class="page" id="page1">
+    <img src=1.jpg><br>
+    <input type=radio name=f1 value=M> M
+    <input type=radio name=f1 value=F> F <br>
+    <a href="javascript:NextTrial()">Next</a> 
+    <span class="progress"></span>
+</div>
+<div class="page" id="page2">
+    <img src=2.jpg><br>
+    <input type=radio name=f2 value=M> M
+    <input type=radio name=f2 value=F> F <br>
+    <a href="javascript:NextTrial()">Next</a> 
+    <span class="progress"></span>
+</div>
+    
+<div class="page" id="page3">
+    <img src=3.jpg><br>
+    <input type=radio name=f3 value=M> M
+    <input type=radio name=f3 value=F> F <br>
+    <a href="javascript:NextTrial()">Next</a> 
+    <span class="progress"></span>
+</div>
+    
+<div class="page" id="page4">
+    <h3>All done! Thanks! Your Correct Rate is </h3>
+</div>
